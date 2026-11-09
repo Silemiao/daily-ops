@@ -115,6 +115,13 @@ NODE_OPTIONS=--require=./scripts/sandbox-noexec.cjs npm run dev
 
 安装后全屏、离线可用；新版本在下次打开时自动更新，数据不动。
 
+### iPhone / iPad 添加到主屏幕
+
+- 用 **Safari** 打开 `https://silemiao.github.io/daily-ops/`，点分享 →「添加到主屏幕」。
+- 如果桌面图标打开白屏，先在 Safari 里打开同一地址，停留几秒后刷新一次，再回到图标打开；第一次可能还是旧界面，关掉再开一次即可更新。
+- **不要直接删除图标**：iOS 删除主屏幕 Web App 时可能连本地数据一起删除。先在 App 内「我的 → 导出备份」，再考虑移除重装。
+- 新版发布后会自动保留旧版 JS/CSS 资源，旧图标不会因为资源 404 而白屏。
+
 ## 数据与兼容
 
 - Dexie v4：计划增加 `purpose`；旧的自动拆解/AI/头脑风暴数据与图片原样保留，只是不再有自动拆解和 AI 入口。

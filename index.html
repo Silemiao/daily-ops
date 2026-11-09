@@ -9,15 +9,120 @@
     />
     <meta name="theme-color" content="#faf6ef" />
     <meta name="description" content="日常经营所：任务拆解、时间块排程与复盘。数据只存在你自己的设备上。" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="经营所" />
-    <link rel="apple-touch-icon" href="/daily-ops/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/daily-ops/apple-touch-icon.png" />
     <title>日常经营所 · Daily Ops</title>
-    <script type="module" crossorigin src="/daily-ops/assets/index-DKIK2HAu.js"></script>
+    <style>#boot-fallback{z-index:99999;color:#26211b;background:#faf6ef;justify-content:center;align-items:center;padding:24px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;display:flex;position:fixed;inset:0}#boot-fallback .boot-card{background:#fffdf9;border:1px solid #e8dfd2;border-radius:16px;width:100%;max-width:360px;padding:22px;box-shadow:0 16px 48px #26211b1f}#boot-fallback h1{margin:0 0 8px;font-size:18px;font-weight:600}#boot-fallback p{color:#756b60;margin:0 0 16px;font-size:13px;line-height:1.7}#boot-fallback button{color:#26211b;width:100%;min-height:44px;font:inherit;background:#fffdf9;border:1px solid #e8dfd2;border-radius:10px;margin-top:8px;font-size:14px}#boot-fallback button.primary{color:#faf6ef;background:#26211b;border-color:#26211b}#boot-fallback small{color:#9a8f82;margin-top:12px;font-size:11px;line-height:1.6;display:block}</style>
+    <script type="module" crossorigin src="/daily-ops/assets/index-iyiDe-kz.js"></script>
     <link rel="stylesheet" crossorigin href="/daily-ops/assets/index-BiFPqecX.css">
   <link rel="manifest" href="/daily-ops/manifest.webmanifest"></head>
   <body>
     <div id="root"></div>
+    <script>
+      ;(function () {
+        var timer = 0
+        var card = null
+
+        function removeCard() {
+          if (card) {
+            card.remove()
+            card = null
+          }
+        }
+
+        function resetAndReload() {
+          var done = function () {
+            location.replace(location.pathname + '?fresh=' + Date.now())
+          }
+          try {
+            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+              navigator.serviceWorker
+                .getRegistrations()
+                .then(function (regs) {
+                  return Promise.all(
+                    regs.map(function (registration) {
+                      return registration.unregister()
+                    }),
+                  )
+                })
+                .then(function () {
+                  if (!window.caches) return []
+                  return caches.keys().then(function (keys) {
+                    return Promise.all(
+                      keys.map(function (key) {
+                        return caches.delete(key)
+                      }),
+                    )
+                  })
+                })
+                .then(done)
+                .catch(done)
+              return
+            }
+          } catch (error) {
+            // Fall through to a plain reload.
+          }
+          done()
+        }
+
+        function showFallback() {
+          if (card || !document.body) return
+          var root = document.getElementById('root')
+          if (root && root.childElementCount > 0) return
+
+          card = document.createElement('div')
+          card.id = 'boot-fallback'
+          card.setAttribute('role', 'alert')
+          card.innerHTML =
+            '<div class="boot-card">' +
+            '<h1>应用没有加载出来</h1>' +
+            '<p>可能是旧缓存或网络问题。先点下面清理旧缓存再试一次；任务数据不会被删除。</p>' +
+            '<button class="primary" data-reset type="button">清理旧缓存并重试</button>' +
+            '<button data-retry type="button">重新加载</button>' +
+            '<small>如果还是打不开，请先在 Safari 里打开并导出备份，再移除主屏幕图标重新添加。</small>' +
+            '</div>'
+          document.body.appendChild(card)
+
+          card.querySelector('[data-reset]').addEventListener('click', resetAndReload)
+          card.querySelector('[data-retry]').addEventListener('click', function () {
+            location.reload()
+          })
+        }
+
+        function watchRoot() {
+          var root = document.getElementById('root')
+          if (!root) return
+          if (root.childElementCount > 0) {
+            removeCard()
+            return
+          }
+          new MutationObserver(function () {
+            if (root.childElementCount > 0) removeCard()
+          }).observe(root, { childList: true })
+        }
+
+        window.addEventListener(
+          'error',
+          function (event) {
+            var target = event.target
+            if (target && target.tagName === 'SCRIPT') showFallback()
+          },
+          true,
+        )
+        window.addEventListener('load', function () {
+          watchRoot()
+          timer = window.setTimeout(showFallback, 8000)
+        })
+        window.setTimeout(showFallback, 12000)
+        window.addEventListener('pageshow', function () {
+          if (!card) return
+          window.clearTimeout(timer)
+          timer = window.setTimeout(showFallback, 2000)
+        })
+      })()
+    </script>
   </body>
 </html>
